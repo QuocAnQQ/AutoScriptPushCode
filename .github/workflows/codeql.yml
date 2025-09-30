@@ -1,0 +1,43 @@
+# Tên của workflow, sẽ hiển thị trong tab "Actions"
+name: "CodeQL Security Scan"
+
+# Quy định khi nào workflow này sẽ chạy
+on:
+  # Chạy khi có code được push lên nhánh "main"
+  push:
+    branches: [ "main" ]
+  # Chạy khi có pull request được mở nhắm vào nhánh "main"
+  pull_request:
+    branches: [ "main" ]
+  # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
+
+# Các công việc (jobs) sẽ được thực hiện
+jobs:
+  analyze:
+    name: Analyze Code
+    # Chạy trên một máy ảo Ubuntu phiên bản mới nhất
+    runs-on: ubuntu-latest
+
+    # Quyền hạn cần thiết để CodeQL ghi kết quả vào repo
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    # Các bước thực hiện
+    steps:
+    # Bước 1: Lấy mã nguồn từ repository về máy ảo
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Bước 2: Khởi tạo công cụ CodeQL
+    # Nó sẽ tự động phát hiện ngôn ngữ (Python trong trường hợp này)
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: python # Bạn có thể thay đổi thành javascript, go, java, etc.
+
+    # Bước 3: Chạy phân tích bằng CodeQL
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
